@@ -216,6 +216,72 @@ def search_PRM(points, prm, start, end):
 
     path_points = []
 
-    ...
+    # Initialize both yet_to_visit and visited lists
+    # Dictionary to track nodes to be explored
+    yet_to_visit_dict = {}
+    # Dictionary to track nodes visited
+    visited_dict = {}
+
+    # Add start node
+    yet_to_visit_dict[start_node.position] = start_node
+
+    # Loop until the end node is found or no more nodes to visit
+    while len(yet_to_visit_dict) > 0:
+        # Get the current node with the smallest f value
+        current_node_position = (-999, -999)
+        current_node = Node(None, current_node_position)
+        current_node.f = 999999
+        for i_position in yet_to_visit_dict.keys():
+            i_node = yet_to_visit_dict[i_position]
+            if i_node.f < current_node.f:
+                current_node = i_node
+
+        # Remove the current node from the yet_to_visit list and add it to the visited list
+        yet_to_visit_dict.pop(current_node.position)
+        visited_dict[current_node.position] = True
+
+        # Check if the current node is the end node
+        if current_node.position == end_node.position:
+            print("Goal reached")
+            # Reconstruct the path
+            while current_node is not None:
+                path_points.append(points[current_node.position])
+                current_node = current_node.parent
+            # Reverse the path to go from the start to the end
+            path_points.reverse()
+            return path_points
+
+        # Expand neighbors from the PRM
+        neighbors = prm[current_node.position]  # Get neighbors of the current node from the PRM
+
+        for neighbor in neighbors:
+            # If neighbor is already visited, skip it
+            if visited_dict.get(neighbor, False):
+                continue
+
+            # Create the neighbor node
+            neighbor_node = Node(current_node, neighbor)
+
+            # Calculate the g, h, and f values
+            neighbor_node.g = current_node.g + sqrt(
+                (points[current_node.position][0] - points[neighbor][0])**2 +
+                (points[current_node.position][1] - points[neighbor][1])**2
+            )
+            neighbor_node.h = sqrt(
+                (points[neighbor][0] - points[end_node.position][0])**2 +
+                (points[neighbor][1] - points[end_node.position][1])**2
+            )
+            neighbor_node.f = neighbor_node.g + neighbor_node.h
+
+            # If neighbor is in the yet_to_visit list and the new g value is higher, skip it
+            neighbor_node_in_yet_to_visit = yet_to_visit_dict.get(neighbor, False)
+            if neighbor_node_in_yet_to_visit and neighbor_node.g >= neighbor_node_in_yet_to_visit.g:
+                continue
+
+            # Add the neighbor to the yet_to_visit list
+            yet_to_visit_dict[neighbor] = neighbor_node
+
+    # If the loop ends without finding the end node, return an empty path
+    print("No path found")
     
     return path_points

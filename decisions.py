@@ -39,7 +39,7 @@ class decision_maker(Node):
 
 
         # [Part 4] TODO Use the EKF localization instead of rawSensors
-        self.localizer=localization(rawSensors)
+        self.localizer=localization(kalmanFilter)
 
 
         self.goal = None
@@ -53,7 +53,7 @@ class decision_maker(Node):
             return -1
 
         # [Part 4] TODO PID gains if needed
-        self.controller=trajectoryController(klp=0.2, klv=0.5, kap=0.8, kav=0.6)      
+        self.controller=trajectoryController(klp=0.25, klv=0.25, kli=0.2, kap=0.65, kav=0.45, kai=0.2) # values obtained from lab
         
         if motion_type in [TRAJECTORY_PLANNER, ASTAR_PLANNER, PRM_PLANNER]:
             self.planner = planner(motion_type)
